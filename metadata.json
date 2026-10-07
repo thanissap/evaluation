@@ -1,0 +1,6 @@
+{
+  "name": "Capital Link - Governance & Employee Evaluation Portal",
+  "description": "ระบบประเมินผลการปฏิบัติงานประจำปี คณะกรรมการและพนักงาน เครือ บมจ.แคปปิตอล ลิ้งค์ ไฟแนนเชียล กรุ๊ป (CLFG) และ บจ.เครดิตฟองซิเอร์ แคปปิตอล ลิ้งค์ (CLC)",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
