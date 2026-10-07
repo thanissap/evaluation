@@ -30,7 +30,6 @@ import { SectionDirector } from './components/SectionDirector';
 import { SectionMD } from './components/SectionMD';
 import { SectionStaff } from './components/SectionStaff';
 import { AdminUnlockModal } from './components/AdminUnlockModal';
-import { DelegationShareModal } from './components/DelegationShareModal';
 import { IncompleteCheckModal, MissingItemInfo } from './components/IncompleteCheckModal';
 import {
   ShieldAlert,
@@ -148,7 +147,6 @@ export default function App() {
 
   // Modals
   const [isAdminModalOpen, setIsAdminModalOpen] = useState(false);
-  const [isShareModalOpen, setIsShareModalOpen] = useState(false);
   const [isSubmitConfirmOpen, setIsSubmitConfirmOpen] = useState(false);
   const [isIncompleteModalOpen, setIsIncompleteModalOpen] = useState(false);
   const [isSubmitSuccessModalOpen, setIsSubmitSuccessModalOpen] = useState(false);
@@ -1267,12 +1265,9 @@ export default function App() {
         currentDirector={currentDirector}
         status={status}
         isSupervisorMode={isSupervisorMode}
-        managedYears={managedYears}
-        onSelectYear={(y) => setYear(y)}
         isSecretaryMode={Boolean(secretaryEditBanner)}
         onExitSecretaryMode={() => setSecretaryEditBanner(null)}
         onOpenAdminModal={() => setIsAdminModalOpen(true)}
-        onOpenShareModal={() => setIsShareModalOpen(true)}
       />
 
       {/* Secretary Edit Mode Sticky Banner */}
@@ -1854,18 +1849,6 @@ export default function App() {
           setIsSubmitConfirmOpen(true);
         }}
         onJumpToItem={handleJumpToItem}
-      />
-
-      {/* Delegation & Magic Link Share Modal */}
-      <DelegationShareModal
-        isOpen={isShareModalOpen}
-        onClose={() => setIsShareModalOpen(false)}
-        company={company}
-        year={year}
-        directors={directorsList}
-        currentDirectorKey={evaluatorKey}
-        onOpenAdminModal={() => setIsAdminModalOpen(true)}
-        onSwitchToContext={handleSwitchContext}
       />
 
       {/* Admin Panel Modal */}

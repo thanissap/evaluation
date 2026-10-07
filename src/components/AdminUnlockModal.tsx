@@ -219,11 +219,14 @@ export const AdminUnlockModal: React.FC<AdminUnlockModalProps> = ({
     IA: 'ruangwit',
   });
 
-  // Base URL for generated links (defaults to current live Google AI Studio URL)
+  // Base URL for generated links (defaults to current live page URL, auto-cleaning old sandbox URLs)
   const [customBaseUrl, setCustomBaseUrl] = useState(() => {
     if (typeof window !== 'undefined') {
       const stored = localStorage.getItem('clg_public_domain');
-      if (stored && !stored.includes('ais-pre-')) return stored;
+      const isLiveNonGoogle = !window.location.hostname.includes('run.app');
+      if (stored && !stored.includes('ais-pre-') && (!isLiveNonGoogle || !stored.includes('run.app'))) {
+        return stored;
+      }
       return window.location.origin + window.location.pathname;
     }
     return '';
@@ -424,9 +427,10 @@ export const AdminUnlockModal: React.FC<AdminUnlockModalProps> = ({
       setLocalDirectors(directors);
 
       const localPublic = localStorage.getItem('clg_public_domain');
-      if (localPublic && !localPublic.includes('ais-pre-')) {
+      const isLiveNonGoogle = typeof window !== 'undefined' && !window.location.hostname.includes('run.app');
+      if (localPublic && !localPublic.includes('ais-pre-') && (!isLiveNonGoogle || !localPublic.includes('run.app'))) {
         setCustomBaseUrl(localPublic);
-      } else {
+      } else if (typeof window !== 'undefined') {
         const detectedBase = window.location.origin + window.location.pathname;
         setCustomBaseUrl(detectedBase);
       }
@@ -3323,14 +3327,14 @@ export const AdminUnlockModal: React.FC<AdminUnlockModalProps> = ({
                 </div>
 
                 {/* Public Base URL / Domain Config Box */}
-                <div className="bg-slate-50 border border-slate-300 rounded-2xl p-4 sm:p-5 space-y-2.5 shadow-2xs">
+                <div className="bg-slate-50 border border-slate-300 rounded-2xl p-4 sm:p-5 space-y-3 shadow-2xs">
                   <div className="flex items-center justify-between flex-wrap gap-2">
                     <label className="text-xs font-bold text-slate-800 flex items-center gap-1.5">
                       <Globe className="w-4 h-4 text-amber-800" />
-                      <span>กำหนด Domain / Public Base URL ของเว็บไซต์จริงสำหรับส่งต่อ:</span>
+                      <span>กำหนด Domain / Public Base URL ของเว็บไซต์สำหรับส่งต่อกรรมการ:</span>
                     </label>
                     <span className="text-[11px] text-slate-500">
-                      ค่าปัจจุบัน: <code className="text-amber-900 font-mono font-bold">{customBaseUrl || 'ยังไม่ได้กำหนด'}</code>
+                      ค่าปัจจุบัน: <code className="text-amber-900 font-mono font-bold bg-amber-50 px-2 py-0.5 rounded border border-amber-200">{customBaseUrl || 'ยังไม่ได้กำหนด'}</code>
                     </span>
                   </div>
 
@@ -3339,7 +3343,7 @@ export const AdminUnlockModal: React.FC<AdminUnlockModalProps> = ({
                       type="url"
                       value={customBaseUrl}
                       onChange={(e) => setCustomBaseUrl(e.target.value)}
-                      placeholder="https://evaluation.capitallink.co.th"
+                      placeholder="https://capital-link.github.io/my-repo/ หรือ https://evaluation.capitallink.co.th"
                       className="flex-1 text-xs font-mono px-3.5 py-2.5 rounded-xl border border-slate-300 bg-white focus:ring-2 focus:ring-amber-500 focus:outline-hidden"
                     />
                     <button
@@ -3348,9 +3352,24 @@ export const AdminUnlockModal: React.FC<AdminUnlockModalProps> = ({
                       className="px-4 py-2.5 rounded-xl bg-amber-900 hover:bg-amber-950 text-white font-bold text-xs shrink-0 flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-95"
                     >
                       <Save className="w-4 h-4 text-amber-300" />
-                      <span>บันทึกโดเมนนี้ลงระบบ</span>
+                      <span>บันทึกโดเมนนี้</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const cur = window.location.origin + window.location.pathname;
+                        handleSavePublicBaseUrl(cur);
+                      }}
+                      className="px-3.5 py-2.5 rounded-xl bg-blue-900 hover:bg-blue-950 text-white font-bold text-xs shrink-0 flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-xs active:scale-95"
+                      title="ดึง URL หน้าเว็บปัจจุบัน (เช่น GitHub Pages) มาเป็น Base URL สำหรับสร้างลิงก์ทันที"
+                    >
+                      <Globe className="w-4 h-4 text-blue-300" />
+                      <span>🌐 ใช้ URL ของหน้านี้ (GitHub Pages)</span>
                     </button>
                   </div>
+                  <p className="text-[11px] text-emerald-800 bg-emerald-50 p-2.5 rounded-xl border border-emerald-200">
+                    💡 <strong>คำแนะนำสำหรับ GitHub Pages:</strong> เมื่อนำเว็บขึ้น GitHub Pages สำเร็จแล้ว ท่านสามารถกดปุ่ม <strong>"🌐 ใช้ URL ของหน้านี้ (GitHub Pages)"</strong> ได้ทันที ลิงก์ทั้งหมดด้านล่างจะอัปเดตเป็นโดเมนใหม่ กรรมการหรือหัวหน้างานคลิกเปิดทำได้ทันทีบนมือถือหรือคอมพิวเตอร์ โดยไม่ต้องล็อกอิน Google และไม่ติดรหัสผ่าน
+                  </p>
                 </div>
 
                 {/* 1. Supervisor Delegation Links (CLC Only) */}
@@ -3385,8 +3404,10 @@ export const AdminUnlockModal: React.FC<AdminUnlockModalProps> = ({
                       const currentDelegatingKey = delegatingDirectors[dept.id] || eligibleDirs[0]?.key || 'chaianan';
                       const delegatingDirectorObj = localDirectors.find((d) => d.key === currentDelegatingKey) || eligibleDirs[0];
                       const queryParamString = `?c=CLC&y=${selectedLinkYear}&k=${currentDelegatingKey}&role=supervisor&dept=${dept.id}`;
-                      const cleanBase = customBaseUrl.replace(/\/+$/, '');
-                      const linkUrl = `${cleanBase}${queryParamString}`;
+                      const targetBase = customBaseUrl?.trim() || (typeof window !== 'undefined' ? window.location.origin + window.location.pathname : '');
+                      const cleanBase = targetBase.split('?')[0].split('#')[0];
+                      const normalizedBase = !cleanBase.endsWith('.html') && !cleanBase.endsWith('/') ? `${cleanBase}/` : cleanBase;
+                      const linkUrl = `${normalizedBase}${queryParamString}`;
                       const isCopiedFull = copiedLinkKey === `sup_${dept.id}`;
                       const isCopiedParams = copiedLinkKey === `sup_params_${dept.id}`;
 
@@ -3521,8 +3542,10 @@ export const AdminUnlockModal: React.FC<AdminUnlockModalProps> = ({
 
                       // Single unified link per director
                       const queryParamString = `?k=${dir.key}&y=${selectedLinkYear}`;
-                      const cleanBase = customBaseUrl.replace(/\/+$/, '');
-                      const linkUrl = `${cleanBase}${queryParamString}`;
+                      const targetBase = customBaseUrl?.trim() || (typeof window !== 'undefined' ? window.location.origin + window.location.pathname : '');
+                      const cleanBase = targetBase.split('?')[0].split('#')[0];
+                      const normalizedBase = !cleanBase.endsWith('.html') && !cleanBase.endsWith('/') ? `${cleanBase}/` : cleanBase;
+                      const linkUrl = `${normalizedBase}${queryParamString}`;
                       const isCopiedFull = copiedLinkKey === `dir_${dir.key}`;
                       const isCopiedParams = copiedLinkKey === `dir_params_${dir.key}`;
 
