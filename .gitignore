@@ -6,3 +6,8 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Runtime databases & backups
+.backups/
+.audit_logs.json
+.config.json
